@@ -1,0 +1,55 @@
+{
+  "short_name": "Menu App - CHEF",
+  "name": "Menu App - CHEF",
+  "icons": [
+    {
+      "src": "icon-20.png",
+      "type": "image/png",
+      "sizes": "20x20"
+    },
+    {
+      "src": "icon-40.png",
+      "type": "image/png",
+      "sizes": "40x40"
+    },
+    {
+      "src": "icon-60.png",
+      "type": "image/png",
+      "sizes": "60x60"
+    },
+    {
+      "src": "icon-144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "icon-152.png",
+      "type": "image/png",
+      "sizes": "152x152"
+    },
+    {
+      "src": "icon-180.png",
+      "type": "image/png",
+      "sizes": "180x180"
+    },
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}
