@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { Header } from '../../components/Header';
-import { Container } from './style';
+import { Container, Content } from './style';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
@@ -10,7 +10,6 @@ import ReactLoading from 'react-loading';
 import { ToastMessage } from '../../components/Toast';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
-import { MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { Col, Row } from 'react-bootstrap';
 import { OrderContainer } from './components/OrderContainer';
 
@@ -25,8 +24,6 @@ export const Home = () => {
   const { setCompanyId, companyId, setOrderDetailedId } =
     useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line
-  const [showAllOrders, setShowAllOrders] = useState(false);
   const [pendingOrders, setPendingOrders] = useState<IOrder[]>([]);
   const [inProgressOrders, setInProgressOrders] = useState<IOrder[]>([]);
   const [readyOrders, setReadyOrders] = useState<IOrder[]>([]);
@@ -109,7 +106,7 @@ export const Home = () => {
           </div>
         )}
         {!loading && (
-          <>
+          <Content>
             <Row className='rowHeader'>
               <Col className='colHeader'>Pendente</Col>
               <Col className='colHeader'>Iniciado</Col>
@@ -118,29 +115,60 @@ export const Home = () => {
             <Row className='rowCards'>
               <Col className='colCards'>
                 {pendingOrders.length > 0 ? (
-                  pendingOrders.map((order) => <OrderContainer order={order} />)
-                ) : (
-                  <span>Nenhum pedido pendente!</span>
-                )}
-              </Col>
-              <Col className='colCards'>
-                {inProgressOrders.length > 0 ? (
-                  inProgressOrders.map((order) => (
-                    <OrderContainer order={order} />
+                  pendingOrders.map((order, idx) => (
+                    <OrderContainer
+                      order={order}
+                      inProgressOrders={inProgressOrders}
+                      pendingOrders={pendingOrders}
+                      readyOrders={readyOrders}
+                      setInProgressOrders={setInProgressOrders}
+                      setPendingOrders={setPendingOrders}
+                      setReadyOrders={setReadyOrders}
+                      key={idx}
+                    />
                   ))
                 ) : (
                   <span>Nenhum pedido pendente!</span>
                 )}
               </Col>
               <Col className='colCards'>
-                {readyOrders.length > 0 ? (
-                  readyOrders.map((order) => <OrderContainer order={order} />)
+                {inProgressOrders.length > 0 ? (
+                  inProgressOrders.map((order, idx) => (
+                    <OrderContainer
+                      order={order}
+                      inProgressOrders={inProgressOrders}
+                      pendingOrders={pendingOrders}
+                      readyOrders={readyOrders}
+                      setInProgressOrders={setInProgressOrders}
+                      setPendingOrders={setPendingOrders}
+                      setReadyOrders={setReadyOrders}
+                      key={idx}
+                    />
+                  ))
                 ) : (
-                  <span>Nenhum pedido pendente!</span>
+                  <span>Nenhum pedido em produção!</span>
+                )}
+              </Col>
+              <Col className='colCards'>
+                {readyOrders.length > 0 ? (
+                  readyOrders.map((order, idx) => (
+                    <OrderContainer
+                      order={order}
+                      inProgressOrders={inProgressOrders}
+                      pendingOrders={pendingOrders}
+                      readyOrders={readyOrders}
+                      setInProgressOrders={setInProgressOrders}
+                      setPendingOrders={setPendingOrders}
+                      setReadyOrders={setReadyOrders}
+                      key={idx}
+                    />
+                  ))
+                ) : (
+                  <span>Nenhum pedido pronto!</span>
                 )}
               </Col>
             </Row>
-          </>
+          </Content>
         )}
       </Container>
     </>

@@ -8,12 +8,8 @@ export const Container = styled.div`
 
 export const Content = styled.div`
   height: 100%;
-  width: 100%;
-  padding-top: 1rem;
-  padding-inline: 2rem;
-  gap: 1rem;
   display: flex;
-  box-sizing: border-box;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
