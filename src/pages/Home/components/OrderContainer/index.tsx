@@ -82,16 +82,16 @@ export const OrderContainer = ({
       if (response.data) {
         const updatedOrder = response.data;
 
-        // Remove the order from the pendingOrders array
         setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
 
-        // Add the order to the inProgressOrders array if the new status is "em produção"
         if (newStatus === 'Iniciar') {
           setInProgressOrders([...inProgressOrders, updatedOrder]);
-        }
-        // Add the order to the readyOrders array if the new status is "pronto"
-        else if (newStatus === 'Concluir') {
+          setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+        } else if (newStatus === 'Concluir') {
           setReadyOrders([...readyOrders, updatedOrder]);
+          setInProgressOrders(
+            inProgressOrders.filter((o) => o.id !== order.id)
+          );
         }
       }
     } catch (err) {
@@ -124,11 +124,13 @@ export const OrderContainer = ({
             Status: {order.statusOrder} {getOrderStatusIcon(order.statusOrder)}
           </span>
         </Row>
-        <Row>
-          <ChangeOrderStatusButton onClick={() => saveNewStatus()}>
-            {newStatus}
-          </ChangeOrderStatusButton>
-        </Row>
+        {order.statusOrder === OrderStatus.pronto ? null : (
+          <Row>
+            <ChangeOrderStatusButton onClick={() => saveNewStatus()}>
+              {newStatus}
+            </ChangeOrderStatusButton>
+          </Row>
+        )}
       </Container>
     </>
   );
