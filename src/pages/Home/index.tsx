@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { Header } from '../../components/Header';
-import { Container, Content } from './style';
+import { ChosenTab, Container, Content, Tab } from './style';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
@@ -12,7 +12,7 @@ import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
 import { Col, Row } from 'react-bootstrap';
 import { OrderContainer } from './components/OrderContainer';
-import { Pagination } from '@mui/material';
+import { Pagination, useMediaQuery } from '@mui/material';
 
 export const Home = () => {
   const { companyIdURL } = useParams();
@@ -22,8 +22,7 @@ export const Home = () => {
   );
   const [toastMessage, setToastMessage] = useState('');
   const navigate = useNavigate();
-  const { setCompanyId, companyId, setOrderDetailedId } =
-    useContext(GlobalContext);
+  const { setCompanyId, companyId } = useContext(GlobalContext);
   const [loading, setLoading] = useState(false);
   const [pendingOrders, setPendingOrders] = useState<IOrder[]>([]);
   const [inProgressOrders, setInProgressOrders] = useState<IOrder[]>([]);
@@ -32,6 +31,8 @@ export const Home = () => {
   const itemsPerPage = 5;
   const startIndex = (page - 1) * itemsPerPage;
   const endIndex = page * itemsPerPage;
+  const isBigScreen = useMediaQuery('(min-width:425px)');
+  const [chosenTab, setchosenTab] = useState('Pendente');
 
   useEffect(() => {
     setLoading(true);
@@ -110,110 +111,244 @@ export const Home = () => {
             />
           </div>
         )}
-        {!loading && (
-          <Content>
-            <Row className='rowHeader'>
-              <Col className='colHeader'>Pendente</Col>
-              <Col className='colHeader'>Iniciado</Col>
-              <Col className='colHeader'>Pronto</Col>
-            </Row>
-            <Row className='rowCards'>
-              <Col className='colCards'>
-                {pendingOrders.length > 0 ? (
-                  pendingOrders
-                    .slice(startIndex, endIndex)
-                    .map((order, idx) => (
-                      <OrderContainer
-                        order={order}
-                        inProgressOrders={inProgressOrders}
-                        pendingOrders={pendingOrders}
-                        readyOrders={readyOrders}
-                        setInProgressOrders={setInProgressOrders}
-                        setPendingOrders={setPendingOrders}
-                        setReadyOrders={setReadyOrders}
-                        key={idx}
+        {!loading &&
+          (isBigScreen ? (
+            <Content>
+              <Row className='rowHeader'>
+                <Col className='colHeader'>Pendente</Col>
+                <Col className='colHeader'>Iniciado</Col>
+                <Col className='colHeader'>Pronto</Col>
+              </Row>
+              <Row className='rowCards'>
+                <Col className='colCards'>
+                  {pendingOrders.length > 0 ? (
+                    pendingOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido pendente!</span>
+                  )}
+                  {pendingOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(pendingOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
                       />
-                    ))
-                ) : (
-                  <span>Nenhum pedido pendente!</span>
-                )}
-                {pendingOrders.length > itemsPerPage ? (
-                  <div className='orderColumnPagination'>
-                    <Pagination
-                      count={Math.ceil(pendingOrders.length / itemsPerPage)}
-                      page={page}
-                      onChange={(event, value) => setPage(value)}
-                      shape='rounded'
-                      className='pagination'
-                    />
-                  </div>
-                ) : null}
-              </Col>
-              <Col className='colCards'>
-                {inProgressOrders.length > 0 ? (
-                  inProgressOrders
-                    .slice(startIndex, endIndex)
-                    .map((order, idx) => (
-                      <OrderContainer
-                        order={order}
-                        inProgressOrders={inProgressOrders}
-                        pendingOrders={pendingOrders}
-                        readyOrders={readyOrders}
-                        setInProgressOrders={setInProgressOrders}
-                        setPendingOrders={setPendingOrders}
-                        setReadyOrders={setReadyOrders}
-                        key={idx}
+                    </div>
+                  ) : null}
+                </Col>
+                <Col className='colCards'>
+                  {inProgressOrders.length > 0 ? (
+                    inProgressOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido em produção!</span>
+                  )}
+                  {inProgressOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(
+                          inProgressOrders.length / itemsPerPage
+                        )}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
                       />
-                    ))
-                ) : (
-                  <span>Nenhum pedido em produção!</span>
-                )}
-                {inProgressOrders.length > itemsPerPage ? (
-                  <div className='orderColumnPagination'>
-                    <Pagination
-                      count={Math.ceil(inProgressOrders.length / itemsPerPage)}
-                      page={page}
-                      onChange={(event, value) => setPage(value)}
-                      shape='rounded'
-                      className='pagination'
-                    />
-                  </div>
-                ) : null}
-              </Col>
-              <Col className='colCards'>
-                {readyOrders.length > 0 ? (
-                  readyOrders
-                    .slice(startIndex, endIndex)
-                    .map((order, idx) => (
-                      <OrderContainer
-                        order={order}
-                        inProgressOrders={inProgressOrders}
-                        pendingOrders={pendingOrders}
-                        readyOrders={readyOrders}
-                        setInProgressOrders={setInProgressOrders}
-                        setPendingOrders={setPendingOrders}
-                        setReadyOrders={setReadyOrders}
-                        key={idx}
+                    </div>
+                  ) : null}
+                </Col>
+                <Col className='colCards'>
+                  {readyOrders.length > 0 ? (
+                    readyOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido pronto!</span>
+                  )}
+                  {readyOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(readyOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
                       />
-                    ))
-                ) : (
-                  <span>Nenhum pedido pronto!</span>
-                )}
-                {readyOrders.length > itemsPerPage ? (
-                  <div className='orderColumnPagination'>
-                    <Pagination
-                      count={Math.ceil(readyOrders.length / itemsPerPage)}
-                      page={page}
-                      onChange={(event, value) => setPage(value)}
-                      shape='rounded'
-                      className='pagination'
-                    />
-                  </div>
-                ) : null}
-              </Col>
-            </Row>
-          </Content>
-        )}
+                    </div>
+                  ) : null}
+                </Col>
+              </Row>
+            </Content>
+          ) : (
+            <Content>
+              <Tab>
+                <ChosenTab
+                  onClick={() => {
+                    setchosenTab('Pendente');
+                  }}
+                  active={chosenTab === 'Pendente'}
+                >
+                  Pendente
+                </ChosenTab>
+
+                <ChosenTab
+                  onClick={() => setchosenTab('Iniciado')}
+                  active={chosenTab === 'Iniciado'}
+                >
+                  Iniciado
+                </ChosenTab>
+
+                <ChosenTab
+                  onClick={() => setchosenTab('Pronto')}
+                  active={chosenTab === 'Pronto'}
+                >
+                  Pronto
+                </ChosenTab>
+              </Tab>
+
+              {chosenTab === 'Pendente' && (
+                <Col className='colCards'>
+                  {pendingOrders.length > 0 ? (
+                    pendingOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido pendente!</span>
+                  )}
+                  {pendingOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(pendingOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
+                      />
+                    </div>
+                  ) : null}
+                </Col>
+              )}
+
+              {chosenTab === 'Iniciado' && (
+                <Col className='colCards'>
+                  {inProgressOrders.length > 0 ? (
+                    inProgressOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido em produção!</span>
+                  )}
+                  {inProgressOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(
+                          inProgressOrders.length / itemsPerPage
+                        )}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
+                      />
+                    </div>
+                  ) : null}
+                </Col>
+              )}
+
+              {chosenTab === 'Pronto' && (
+                <Col className='colCards'>
+                  {readyOrders.length > 0 ? (
+                    readyOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido pronto!</span>
+                  )}
+                  {readyOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(readyOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
+                      />
+                    </div>
+                  ) : null}
+                </Col>
+              )}
+            </Content>
+          ))}
       </Container>
     </>
   );
