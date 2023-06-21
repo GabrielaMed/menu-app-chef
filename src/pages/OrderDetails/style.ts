@@ -171,16 +171,3 @@ export const OrderDetail = styled.div`
     align-items: center;
   }
 `;
-
-export const ChangeOrderStatus = styled.button`
-  all: unset;
-  width: 100%;
-  height: 2rem;
-  background-color: #4b2995;
-  border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  cursor: pointer;
-`;

@@ -13,20 +13,13 @@ import {
   OrderInfoObservation,
   OrderDetail,
   ProductInfo,
-  ChangeOrderStatus,
 } from './style';
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactLoading from 'react-loading';
-import {
-  MdArrowBack,
-  MdDeliveryDining,
-  MdPerson,
-  MdRestaurantMenu,
-  MdSoupKitchen,
-} from 'react-icons/md';
+import { MdArrowBack, MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { GlobalContext } from '../../shared/GlobalContext';
 import { ToastMessage } from '../../components/Toast';
 import { IOrder } from '../../utils/Interface/Order';
@@ -110,7 +103,7 @@ export const OrderDetails = () => {
             <MdArrowBack
               size={24}
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/orders`)}
+              onClick={() => navigate(`/`)}
             />
           </span>
           <span>Detalhes Pedido {orderData?.orderNumber}</span>
@@ -212,10 +205,6 @@ export const OrderDetails = () => {
                   {orderData?.statusOrder}
                   {getOrderStatusIcon(orderData?.statusOrder)}
                 </span>
-              </OrderDetail>
-
-              <OrderDetail>
-                <ChangeOrderStatus>Mudar status</ChangeOrderStatus>
               </OrderDetail>
             </Footer>
           </Content>
