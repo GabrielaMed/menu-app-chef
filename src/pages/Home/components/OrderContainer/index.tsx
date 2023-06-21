@@ -4,10 +4,12 @@ import { ChangeOrderStatusButton, Container } from './style';
 import { OrderStatus } from '../../../../utils/Enum/OrderStatus';
 import { MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { ToastMessage } from '../../../../components/Toast';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { IToastType } from '../../../../utils/Interface/Toast';
 import { api } from '../../../../services/api';
 import { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { GlobalContext } from '../../../../shared/GlobalContext';
 
 interface Props {
   order: IOrder;
@@ -33,6 +35,8 @@ export const OrderContainer = ({
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
+  const navigate = useNavigate();
+  const { setOrderDetailedId } = useContext(GlobalContext);
 
   const formatDate = (dateTime: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -111,8 +115,19 @@ export const OrderContainer = ({
         toastMessage={toastMessage}
         toastMessageType={toastMessageType}
       />
-      <Container>
-        <Col style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Container
+        onClick={() => {
+          setOrderDetailedId(order.id);
+          navigate('/orderDetails');
+        }}
+      >
+        <Col
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+          }}
+        >
           <span>N° Pedido: {order.orderNumber}</span>
           <span>Mesa: {order.tableNumber}</span>
         </Col>
