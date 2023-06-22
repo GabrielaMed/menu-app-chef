@@ -4,7 +4,7 @@ import { ChangeOrderStatusButton, Container } from './style';
 import { OrderStatus } from '../../../../utils/Enum/OrderStatus';
 import { MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { ToastMessage } from '../../../../components/Toast';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { IToastType } from '../../../../utils/Interface/Toast';
 import { api } from '../../../../services/api';
 import { AxiosError } from 'axios';
@@ -37,6 +37,7 @@ export const OrderContainer = ({
   );
   const navigate = useNavigate();
   const { setOrderDetailedId } = useContext(GlobalContext);
+  const [newStatusOrder, setNewStatusOrder] = useState('');
 
   const formatDate = (dateTime: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -75,27 +76,45 @@ export const OrderContainer = ({
     return null;
   };
 
+  const handlePrevStatus = (status: string) => {
+    if (status === OrderStatus.em_producao) {
+      return 'Pendente';
+    }
+    if (status === OrderStatus.pronto) {
+      return 'Iniciado';
+    }
+    return null;
+  };
+
   const newStatus = handleStatus(order.statusOrder);
+
+  const previousStatus = handlePrevStatus(order.statusOrder);
 
   const saveNewStatus = async () => {
     try {
       const response = await api.put(`order/${order.id}/status`, {
-        newStatusOrder: newStatus === 'Iniciar' ? 'em produção' : 'pronto',
+        newStatusOrder,
       });
 
       if (response.data) {
         const updatedOrder = response.data;
 
-        setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
-
-        if (newStatus === 'Iniciar') {
-          setInProgressOrders([...inProgressOrders, updatedOrder]);
-          setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
-        } else if (newStatus === 'Concluir') {
-          setReadyOrders([...readyOrders, updatedOrder]);
+        if (newStatusOrder === OrderStatus.enviado) {
           setInProgressOrders(
             inProgressOrders.filter((o) => o.id !== order.id)
           );
+          setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+          setPendingOrders([...pendingOrders, updatedOrder]);
+        } else if (newStatusOrder === OrderStatus.em_producao) {
+          setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
+          setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+          setInProgressOrders([...inProgressOrders, updatedOrder]);
+        } else if (newStatusOrder === OrderStatus.pronto) {
+          setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
+          setInProgressOrders(
+            inProgressOrders.filter((o) => o.id !== order.id)
+          );
+          setReadyOrders([...readyOrders, updatedOrder]);
         }
       }
     } catch (err) {
@@ -106,6 +125,32 @@ export const OrderContainer = ({
       }
     }
   };
+
+  const handleNextStatus = () => {
+    if (order.statusOrder === OrderStatus.enviado) {
+      const newStatus = 'em produção';
+      setNewStatusOrder(newStatus);
+    } else if (order.statusOrder === OrderStatus.em_producao) {
+      const newStatus = 'pronto';
+      setNewStatusOrder(newStatus);
+    }
+  };
+
+  const handlePreviousStatus = () => {
+    if (order.statusOrder === OrderStatus.em_producao) {
+      const newStatus = 'enviado';
+      setNewStatusOrder(newStatus);
+    } else if (order.statusOrder === OrderStatus.pronto) {
+      const newStatus = 'em produção';
+      setNewStatusOrder(newStatus);
+    }
+  };
+
+  useEffect(() => {
+    if (newStatusOrder !== '') {
+      saveNewStatus();
+    }
+  }, [newStatusOrder]);
 
   return (
     <>
@@ -118,7 +163,9 @@ export const OrderContainer = ({
       <Container
         onClick={() => {
           setOrderDetailedId(order.id);
+          // setTimeout(() => {
           navigate('/orderDetails');
+          // }, 3000);
         }}
       >
         <Col
@@ -139,9 +186,46 @@ export const OrderContainer = ({
             Status: {order.statusOrder} {getOrderStatusIcon(order.statusOrder)}
           </span>
         </Row>
-        {order.statusOrder === OrderStatus.pronto ? null : (
+        {order.statusOrder === OrderStatus.pronto && (
           <Row>
-            <ChangeOrderStatusButton onClick={() => saveNewStatus()}>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation(); // Stop the click event propagation
+                handlePreviousStatus();
+              }}
+            >
+              {previousStatus}
+            </ChangeOrderStatusButton>
+          </Row>
+        )}
+        {order.statusOrder === OrderStatus.em_producao && (
+          <Row style={{ gap: '0.5rem' }}>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextStatus();
+              }}
+            >
+              {newStatus}
+            </ChangeOrderStatusButton>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePreviousStatus();
+              }}
+            >
+              {previousStatus}
+            </ChangeOrderStatusButton>
+          </Row>
+        )}
+        {order.statusOrder === OrderStatus.enviado && (
+          <Row>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextStatus();
+              }}
+            >
               {newStatus}
             </ChangeOrderStatusButton>
           </Row>
