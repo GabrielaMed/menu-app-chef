@@ -100,7 +100,7 @@ export const Home = () => {
         toastMessageType={toastMessageType}
       />
       <Container>
-        <Header pageName='Home' />
+        <Header pageName='Produção' />
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <ReactLoading
