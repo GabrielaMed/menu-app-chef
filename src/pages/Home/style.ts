@@ -30,8 +30,6 @@ export const ChosenTab = styled.button<{ active: boolean }>`
   display: flex;
   justify-content: center;
   cursor: pointer;
-  /* background-color: ${({ active }) =>
-    active ? '#C4C4C4' : 'transparent'}; */
   color: ${({ active }) => (active ? '#4B2995' : '#C4C4C4')};
 
   &:not(:last-child) {
