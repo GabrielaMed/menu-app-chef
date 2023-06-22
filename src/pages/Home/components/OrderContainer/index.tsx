@@ -150,6 +150,8 @@ export const OrderContainer = ({
     if (newStatusOrder !== '') {
       saveNewStatus();
     }
+
+    // eslint-disable-next-line
   }, [newStatusOrder]);
 
   return (
