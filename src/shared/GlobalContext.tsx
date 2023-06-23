@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from 'react';
+import { ReactNode, createContext, useEffect, useState } from 'react';
 
 type GlobalContextData = {
   companyId: string;
@@ -16,9 +16,16 @@ type Props = {
 };
 
 export const GlobalContextProvider = ({ children }: Props) => {
-  const [companyId, setCompanyId] = useState('');
+  const [companyId, setCompanyId] = useState(() => {
+    const storedCompanyId = localStorage.getItem('companyId');
+    return storedCompanyId ? storedCompanyId : '';
+  });
   const [productId, setProductId] = useState('');
   const [orderDetailedId, setOrderDetailedId] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('companyId', companyId);
+  }, [companyId]);
 
   return (
     <GlobalContext.Provider
