@@ -38,8 +38,8 @@ export const Content = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-top: 1rem;
-  padding-inline: 2rem;
+  padding-inline: 0.5rem;
+  padding-bottom: 1rem;
   gap: 1rem;
 `;
 
