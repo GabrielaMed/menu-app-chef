@@ -27,6 +27,7 @@ export const Home = () => {
   const [pendingOrders, setPendingOrders] = useState<IOrder[]>([]);
   const [inProgressOrders, setInProgressOrders] = useState<IOrder[]>([]);
   const [readyOrders, setReadyOrders] = useState<IOrder[]>([]);
+  const [deliveredOrders, setDeliveredOrders] = useState<IOrder[]>([]);
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
   const startIndex = (page - 1) * itemsPerPage;
@@ -74,6 +75,12 @@ export const Home = () => {
               (order: IOrder) => order.statusOrder === OrderStatus.pronto
             )
           );
+
+          setDeliveredOrders(
+            response.data.filter(
+              (order: IOrder) => order.statusOrder === OrderStatus.entregue
+            )
+          );
         }
         setLoading(false);
       } catch (err) {
@@ -118,6 +125,7 @@ export const Home = () => {
                 <Col className='colHeader'>Pendente</Col>
                 <Col className='colHeader'>Iniciado</Col>
                 <Col className='colHeader'>Pronto</Col>
+                <Col className='colHeader'>Entregue</Col>
               </Row>
               <Row className='rowCards'>
                 <Col className='colCards'>
@@ -133,6 +141,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -164,6 +174,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -197,6 +209,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -207,6 +221,39 @@ export const Home = () => {
                     <div className='orderColumnPagination'>
                       <Pagination
                         count={Math.ceil(readyOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
+                      />
+                    </div>
+                  ) : null}
+                </Col>
+                <Col className='colCards'>
+                  {deliveredOrders.length > 0 ? (
+                    deliveredOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido entregue!</span>
+                  )}
+                  {deliveredOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(deliveredOrders.length / itemsPerPage)}
                         page={page}
                         onChange={(event, value) => setPage(value)}
                         shape='rounded'
@@ -242,6 +289,13 @@ export const Home = () => {
                 >
                   Pronto
                 </ChosenTab>
+
+                <ChosenTab
+                  onClick={() => setchosenTab('Entregue')}
+                  active={chosenTab === 'Entregue'}
+                >
+                  Pronto
+                </ChosenTab>
               </Tab>
 
               {chosenTab === 'Pendente' && (
@@ -258,6 +312,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -292,6 +348,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -328,6 +386,8 @@ export const Home = () => {
                           setInProgressOrders={setInProgressOrders}
                           setPendingOrders={setPendingOrders}
                           setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
                           key={idx}
                         />
                       ))
@@ -338,6 +398,42 @@ export const Home = () => {
                     <div className='orderColumnPagination'>
                       <Pagination
                         count={Math.ceil(readyOrders.length / itemsPerPage)}
+                        page={page}
+                        onChange={(event, value) => setPage(value)}
+                        shape='rounded'
+                        className='pagination'
+                      />
+                    </div>
+                  ) : null}
+                </Col>
+              )}
+
+              {chosenTab === 'Entregue' && (
+                <Col className='colCards'>
+                  {deliveredOrders.length > 0 ? (
+                    deliveredOrders
+                      .slice(startIndex, endIndex)
+                      .map((order, idx) => (
+                        <OrderContainer
+                          order={order}
+                          inProgressOrders={inProgressOrders}
+                          pendingOrders={pendingOrders}
+                          readyOrders={readyOrders}
+                          setInProgressOrders={setInProgressOrders}
+                          setPendingOrders={setPendingOrders}
+                          setReadyOrders={setReadyOrders}
+                          deliveredOrders={deliveredOrders}
+                          setDeliveredOrders={setDeliveredOrders}
+                          key={idx}
+                        />
+                      ))
+                  ) : (
+                    <span>Nenhum pedido entregue!</span>
+                  )}
+                  {deliveredOrders.length > itemsPerPage ? (
+                    <div className='orderColumnPagination'>
+                      <Pagination
+                        count={Math.ceil(deliveredOrders.length / itemsPerPage)}
                         page={page}
                         onChange={(event, value) => setPage(value)}
                         shape='rounded'
