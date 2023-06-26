@@ -19,11 +19,12 @@ import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactLoading from 'react-loading';
-import { MdArrowBack, MdPerson, MdSoupKitchen } from 'react-icons/md';
+import { MdDeliveryDining, MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { GlobalContext } from '../../shared/GlobalContext';
 import { ToastMessage } from '../../components/Toast';
 import { IOrder } from '../../utils/Interface/Order';
 import { OrderStatus } from '../../utils/Enum/OrderStatus';
+import { Modal } from 'react-bootstrap';
 
 export const OrderDetails = () => {
   const { orderDetailedId } = useContext(GlobalContext);
@@ -34,7 +35,6 @@ export const OrderDetails = () => {
     IToastType.unknow
   );
   const [toastMessage, setToastMessage] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,6 +84,9 @@ export const OrderDetails = () => {
       case OrderStatus.pronto:
         return <MdSoupKitchen color='green' />;
 
+      case OrderStatus.entregue:
+        return <MdDeliveryDining color='green' />;
+
       default:
         return null;
     }
@@ -97,119 +100,107 @@ export const OrderDetails = () => {
         toastMessage={toastMessage}
         toastMessageType={toastMessageType}
       />
-      <Container>
-        <Navbar>
-          <span>
-            <MdArrowBack
-              size={24}
-              style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/`)}
-            />
-          </span>
-          <span>Detalhes Pedido {orderData?.orderNumber}</span>
-        </Navbar>
-        {loading && (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <ReactLoading
-              type={'cylon'}
-              color={'#4B2995'}
-              height={'150px'}
-              width={'150px'}
-            />
-          </div>
-        )}
-        {!loading && (
-          <Content>
-            {orderData?.Order_products
-              ? orderData?.Order_products.map((order, idx) => (
-                  <Card key={idx}>
-                    <Order>
-                      {order.product.Image ? (
-                        <ImageBox>
-                          <img
-                            src={
-                              process.env.REACT_APP_IMAGE_URL! +
-                              order.product.Image[0].fileName
-                            }
-                            alt=''
-                          />
-                        </ImageBox>
-                      ) : null}
-                      <OrderInfo>
-                        <ProductInfo>
-                          {order.product.name}
-                          <strong>
-                            {Number(
-                              (orderData?.Order_products[0].quantity ?? 0) *
-                                (orderData?.Order_products[0].product.price ??
-                                  0)
-                            ).toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
-                          </strong>
-                        </ProductInfo>
-                        {(order.additionals?.length ?? 0) > 0 ? (
-                          <OrderInfoAdditionals>
-                            <strong>Adicionais: </strong>
-                            {Array.isArray(order.additionals)
-                              ? order.additionals.map((additional, idx) => (
-                                  <span key={idx}>
-                                    <span>
-                                      {additional.quantity} - {additional.name}
-                                    </span>
-                                    <span>
-                                      {Number(
-                                        (additional.quantity ?? 0) *
-                                          (additional.price ?? 0)
-                                      ).toLocaleString('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                      })}
-                                    </span>
+
+      {loading && (
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <ReactLoading
+            type={'cylon'}
+            color={'#4B2995'}
+            height={'150px'}
+            width={'150px'}
+          />
+        </div>
+      )}
+      {!loading && (
+        <Content>
+          {orderData?.Order_products
+            ? orderData?.Order_products.map((order, idx) => (
+                <Card key={idx}>
+                  <Order>
+                    {order.product.Image ? (
+                      <ImageBox>
+                        <img
+                          src={
+                            process.env.REACT_APP_IMAGE_URL! +
+                            order.product.Image[0].fileName
+                          }
+                          alt=''
+                        />
+                      </ImageBox>
+                    ) : null}
+                    <OrderInfo>
+                      <ProductInfo>
+                        {order.product.name}
+                        <strong>
+                          {Number(
+                            (orderData?.Order_products[0].quantity ?? 0) *
+                              (orderData?.Order_products[0].product.price ?? 0)
+                          ).toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          })}
+                        </strong>
+                      </ProductInfo>
+                      {(order.additionals?.length ?? 0) > 0 ? (
+                        <OrderInfoAdditionals>
+                          <strong>Adicionais: </strong>
+                          {Array.isArray(order.additionals)
+                            ? order.additionals.map((additional, idx) => (
+                                <span key={idx}>
+                                  <span>
+                                    {additional.quantity} - {additional.name}
                                   </span>
-                                ))
-                              : null}
-                          </OrderInfoAdditionals>
-                        ) : null}
+                                  <span>
+                                    {Number(
+                                      (additional.quantity ?? 0) *
+                                        (additional.price ?? 0)
+                                    ).toLocaleString('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    })}
+                                  </span>
+                                </span>
+                              ))
+                            : null}
+                        </OrderInfoAdditionals>
+                      ) : null}
 
-                        {order.observation ? (
-                          <OrderInfoObservation>
-                            Observação: {order.observation}
-                          </OrderInfoObservation>
-                        ) : null}
-                        <OrderInfoButtonsBox>
-                          Quantidade: {order.quantity}
-                        </OrderInfoButtonsBox>
-                      </OrderInfo>
-                    </Order>
-                  </Card>
-                ))
-              : null}
+                      {order.observation ? (
+                        <OrderInfoObservation>
+                          Observação: {order.observation}
+                        </OrderInfoObservation>
+                      ) : null}
+                      <OrderInfoButtonsBox>
+                        Quantidade: {order.quantity}
+                      </OrderInfoButtonsBox>
+                    </OrderInfo>
+                  </Order>
+                </Card>
+              ))
+            : null}
+        </Content>
+      )}
 
-            <Footer>
-              <OrderDetail>
-                <strong>Mesa: </strong>
-                {orderData?.tableNumber}
-              </OrderDetail>
-              <OrderDetail>
-                <strong>Data: </strong>
-                {formatDate(orderData?.dateTimeOrder)}
-              </OrderDetail>
+      <Modal.Footer>
+        <OrderDetail>
+          <strong>Mesa: </strong>
+          {orderData?.tableNumber}
+        </OrderDetail>
+        <OrderDetail>
+          <strong>Data: </strong>
+          {formatDate(orderData?.dateTimeOrder)}
+        </OrderDetail>
 
-              <OrderDetail>
-                <span>
-                  <strong>Status: </strong>
-                </span>
-                <span>
-                  {orderData?.statusOrder}
-                  {getOrderStatusIcon(orderData?.statusOrder)}
-                </span>
-              </OrderDetail>
-            </Footer>
-          </Content>
-        )}
-      </Container>
+        <OrderDetail>
+          <span>
+            <strong>Status: </strong>
+          </span>
+          <span>
+            {orderData?.statusOrder}
+            {getOrderStatusIcon(orderData?.statusOrder)}
+          </span>
+        </OrderDetail>
+      </Modal.Footer>
     </>
   );
 };

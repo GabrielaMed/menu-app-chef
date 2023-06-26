@@ -1,15 +1,15 @@
-import { Col, Row } from 'react-bootstrap';
+import { Col, Modal, Row } from 'react-bootstrap';
 import { IOrder } from '../../../../utils/Interface/Order';
 import { ChangeOrderStatusButton, Container } from './style';
 import { OrderStatus } from '../../../../utils/Enum/OrderStatus';
-import { MdPerson, MdSoupKitchen } from 'react-icons/md';
+import { MdDeliveryDining, MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { ToastMessage } from '../../../../components/Toast';
 import { useContext, useEffect, useState } from 'react';
 import { IToastType } from '../../../../utils/Interface/Toast';
 import { api } from '../../../../services/api';
 import { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { GlobalContext } from '../../../../shared/GlobalContext';
+import { OrderDetails } from '../../../OrderDetails';
 
 interface Props {
   order: IOrder;
@@ -19,6 +19,8 @@ interface Props {
   setInProgressOrders: (inProgressOrders: IOrder[]) => void;
   readyOrders: IOrder[];
   setReadyOrders: (readyOrders: IOrder[]) => void;
+  deliveredOrders: IOrder[];
+  setDeliveredOrders: (deliveredOrders: IOrder[]) => void;
 }
 
 export const OrderContainer = ({
@@ -29,15 +31,17 @@ export const OrderContainer = ({
   setInProgressOrders,
   setPendingOrders,
   setReadyOrders,
+  deliveredOrders,
+  setDeliveredOrders,
 }: Props) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastMessageType, setToastMessageType] = useState<IToastType>(
     IToastType.unknow
   );
-  const navigate = useNavigate();
   const { setOrderDetailedId } = useContext(GlobalContext);
   const [newStatusOrder, setNewStatusOrder] = useState('');
+  const [show, setShow] = useState(false);
 
   const formatDate = (dateTime: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -61,6 +65,9 @@ export const OrderContainer = ({
       case OrderStatus.pronto:
         return <MdSoupKitchen color='green' />;
 
+      case OrderStatus.entregue:
+        return <MdDeliveryDining color='green' />;
+
       default:
         return null;
     }
@@ -73,6 +80,9 @@ export const OrderContainer = ({
     if (status === OrderStatus.em_producao) {
       return 'Concluir';
     }
+    if (status === OrderStatus.pronto) {
+      return 'Entregar';
+    }
     return null;
   };
 
@@ -82,6 +92,9 @@ export const OrderContainer = ({
     }
     if (status === OrderStatus.pronto) {
       return 'Iniciado';
+    }
+    if (status === OrderStatus.entregue) {
+      return 'Pronto';
     }
     return null;
   };
@@ -104,17 +117,27 @@ export const OrderContainer = ({
             inProgressOrders.filter((o) => o.id !== order.id)
           );
           setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+          setDeliveredOrders(deliveredOrders.filter((o) => o.id !== order.id));
           setPendingOrders([...pendingOrders, updatedOrder]);
         } else if (newStatusOrder === OrderStatus.em_producao) {
           setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
           setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+          setDeliveredOrders(deliveredOrders.filter((o) => o.id !== order.id));
           setInProgressOrders([...inProgressOrders, updatedOrder]);
         } else if (newStatusOrder === OrderStatus.pronto) {
           setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
           setInProgressOrders(
             inProgressOrders.filter((o) => o.id !== order.id)
           );
+          setDeliveredOrders(deliveredOrders.filter((o) => o.id !== order.id));
           setReadyOrders([...readyOrders, updatedOrder]);
+        } else if (newStatusOrder === OrderStatus.entregue) {
+          setPendingOrders(pendingOrders.filter((o) => o.id !== order.id));
+          setInProgressOrders(
+            inProgressOrders.filter((o) => o.id !== order.id)
+          );
+          setReadyOrders(readyOrders.filter((o) => o.id !== order.id));
+          setDeliveredOrders([...deliveredOrders, updatedOrder]);
         }
       }
     } catch (err) {
@@ -133,6 +156,9 @@ export const OrderContainer = ({
     } else if (order.statusOrder === OrderStatus.em_producao) {
       const newStatus = 'pronto';
       setNewStatusOrder(newStatus);
+    } else if (order.statusOrder === OrderStatus.pronto) {
+      const newStatus = 'entregue';
+      setNewStatusOrder(newStatus);
     }
   };
 
@@ -142,6 +168,9 @@ export const OrderContainer = ({
       setNewStatusOrder(newStatus);
     } else if (order.statusOrder === OrderStatus.pronto) {
       const newStatus = 'em produção';
+      setNewStatusOrder(newStatus);
+    } else if (order.statusOrder === OrderStatus.entregue) {
+      const newStatus = 'pronto';
       setNewStatusOrder(newStatus);
     }
   };
@@ -165,9 +194,7 @@ export const OrderContainer = ({
       <Container
         onClick={() => {
           setOrderDetailedId(order.id);
-          // setTimeout(() => {
-          navigate('/orderDetails');
-          // }, 3000);
+          setShow(true);
         }}
       >
         <Col
@@ -188,11 +215,31 @@ export const OrderContainer = ({
             Status: {order.statusOrder} {getOrderStatusIcon(order.statusOrder)}
           </span>
         </Row>
-        {order.statusOrder === OrderStatus.pronto && (
+        {order.statusOrder === OrderStatus.entregue && (
           <Row>
             <ChangeOrderStatusButton
               onClick={(e) => {
-                e.stopPropagation(); // Stop the click event propagation
+                e.stopPropagation();
+                handlePreviousStatus();
+              }}
+            >
+              {previousStatus}
+            </ChangeOrderStatusButton>
+          </Row>
+        )}
+        {order.statusOrder === OrderStatus.pronto && (
+          <Row style={{ gap: '0.5rem' }}>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextStatus();
+              }}
+            >
+              {newStatus}
+            </ChangeOrderStatusButton>
+            <ChangeOrderStatusButton
+              onClick={(e) => {
+                e.stopPropagation();
                 handlePreviousStatus();
               }}
             >
@@ -233,6 +280,14 @@ export const OrderContainer = ({
           </Row>
         )}
       </Container>
+      <Modal show={show} onHide={() => setShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Order Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <OrderDetails />
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
