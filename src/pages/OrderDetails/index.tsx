@@ -1,11 +1,8 @@
 import { AxiosError } from 'axios';
 import {
   Card,
-  Container,
   Content,
-  Footer,
   ImageBox,
-  Navbar,
   Order,
   OrderInfo,
   OrderInfoAdditionals,
