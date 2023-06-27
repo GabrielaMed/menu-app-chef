@@ -14,7 +14,6 @@ import {
 import { IToastType } from '../../utils/Interface/Toast';
 import { api } from '../../services/api';
 import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ReactLoading from 'react-loading';
 import { MdDeliveryDining, MdPerson, MdSoupKitchen } from 'react-icons/md';
 import { GlobalContext } from '../../shared/GlobalContext';
