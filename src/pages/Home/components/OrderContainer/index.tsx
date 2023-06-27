@@ -282,7 +282,7 @@ export const OrderContainer = ({
       </Container>
       <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Order Details</Modal.Title>
+          <Modal.Title>Detalhes do Pedido</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <OrderDetails />
